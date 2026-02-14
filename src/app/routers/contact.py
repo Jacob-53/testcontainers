@@ -21,3 +21,14 @@ def create_contact(body: ContactCreate):
     finally:
         conn.close()
     return ContactResponse(id=row[0], name=row[1], phone=row[2], email=row[3])
+
+@router.get("/", response_model=list[ContactResponse])
+def get_contacts():
+    conn: Connection = get_connection()
+    try:
+        with conn.transaction():
+            cur = conn.execute("SELECT id, name, phone, email FROM address_book")
+            rows = cur.fetchall()
+    finally:
+        conn.close()
+    return [ContactResponse(id=r[0], name=r[1], phone=r[2], email=r[3]) for r in rows]
